@@ -8,7 +8,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { generateToken } = require("../helpers/tokens");
 const { sendVerificationEmail } = require("../helpers/mailer");
-const { JsonWebTokenError } = require("jsonwebtoken");
 exports.register = async (req, res) => {
   try {
     const {
@@ -88,35 +87,40 @@ exports.register = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-exports.activateAccount=async (req,res)=>{
+exports.activateAccount = async (req, res) => {
   try {
-    const {token} = req.body;
-    const user = jwt.verify(token,process.env.TOKEN_SECRET);
+    const { token } = req.body;
+    const user = jwt.verify(token, process.env.TOKEN_SECRET);
     const check = await User.findById(user.id);
-    if(check.verified==true){
-      return res.status(400).json({message:'this email is already activared'});
+    if (check.verified == true) {
+      return res
+        .status(400)
+        .json({ message: "this email is already activated" });
+    } else {
+      await User.findByIdAndUpdate(user.id, { verified: true });
+      return res
+        .status(200)
+        .json({ message: "Account has beeen activated successfully." });
     }
-    else{
-      await User.findByIdAndUpdate(user.id, {verified :true})
-      return res.status(200)
-      .json({message:'User activated Successfully'});
-    }
-  } 
-  catch (error) {
+  } catch (error) {
     res.status(500).json({ message: error.message });
   }
-  
 };
-exports.login=async(req,res)=>{
+exports.login = async (req, res) => {
   try {
-    const {email,password}= req.body
-    const user =await User.findOne({email});
-    if(!user){
-      return res.status(400).json({message:"the email address you entered is not connected to an account."})
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        message:
+          "the email address you entered is not connected to an account.",
+      });
     }
-    const check = await bcrypt.compare(password,user.password)
-    if(!check){
-      res.status(400).json({ message: "Invalid Credentials Please try again "});
+    const check = await bcrypt.compare(password, user.password);
+    if (!check) {
+      return res.status(400).json({
+        message: "Invalid credentials.Please try again.",
+      });
     }
     const token = generateToken({ id: user._id.toString() }, "7d");
     res.send({
@@ -132,4 +136,4 @@ exports.login=async(req,res)=>{
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
