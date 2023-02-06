@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useState } from "react";
+import { useState} from "react";
 import RegisterInput from "../inputs/registerInput";
 import * as Yup from "yup";
 import DateOfBirthSelect from "./DateOfBirthSelect";
@@ -107,7 +107,7 @@ export default function RegisterForm(setVisible) {
     <div className="blur">
       <div className="register">
         <div className="register_header">
-          <i className="exit_icon" onClick={()=>setVisible(false)}></i>
+          <i className="exit_icon" onClick={()=>{setVisible(false)}}></i>
           <span>Sign Up</span>
           <span>it's quick and easy</span>
         </div>
